@@ -27,7 +27,8 @@ from PySide6.QtGui import QAction, QBrush, QColor, QFont, QIcon, QImage, QKeySeq
 from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QComboBox, QFileDialog, QFrame,
                                QGraphicsEllipseItem, QGraphicsPixmapItem, QGraphicsRectItem, QGraphicsScene,
                                QGraphicsView, QHBoxLayout, QHeaderView, QLabel, QListWidget, QListWidgetItem,
-                               QMainWindow, QMessageBox, QProgressBar, QPushButton, QSlider, QSplitter, QTableWidget,
+                               QMainWindow, QMessageBox, QProgressBar, QPushButton, QScrollArea, QSlider,
+                               QSplitter, QTableWidget,
                                QTableWidgetItem, QVBoxLayout, QWidget)
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -40,8 +41,8 @@ from src.evaluation import gt_match_zones                   # noqa: E402
 BG, PANEL, CARD, BORDER = "#0f1420", "#161d2b", "#1e2738", "#2b3548"
 TEXT, MUTED, ACCENT, ACCENT2 = "#e6e9ef", "#8d97a8", "#e0663a", "#f0a33b"
 TP_COL, FP_COL, FN_COL, CAND_COL = QColor(0, 214, 214), QColor(236, 72, 236), QColor(250, 210, 0), QColor(224, 102, 58)
-MODELS = [("D", "D — Full system (recommended)"), ("D0", "D0 — Vessel suppression"),
-          ("C", "C — Black-hat"), ("B+", "B+ — Denoised threshold"), ("A", "A — Green-channel threshold")]
+MODELS = [("D", "D — Full system"), ("D0", "D0 — Vessel suppression"),
+          ("C", "C — Black-hat"), ("B+", "B+ — Denoised threshold"), ("A", "A — Green threshold")]
 STYLE = f"""
 QMainWindow, QWidget {{ background: {BG}; color: {TEXT}; font-family: 'Segoe UI'; font-size: 10pt; }}
 QLabel, QCheckBox {{ background: transparent; }}
@@ -53,12 +54,14 @@ QLabel#section {{ color: {MUTED}; font-size: 8.5pt; font-weight: 600; letter-spa
 QLabel#value {{ font-size: 22pt; font-weight: 600; color: {TEXT}; }}
 QLabel#accentvalue {{ font-size: 22pt; font-weight: 600; color: {ACCENT}; }}
 QLabel#caption {{ color: {MUTED}; font-size: 8.5pt; }}
-QPushButton {{ background: {CARD}; border: 1px solid {BORDER}; border-radius: 8px; padding: 8px 12px; }}
+QPushButton {{ background: {CARD}; border: 1px solid {BORDER}; border-radius: 8px; padding: 6px 12px; min-height: 22px; }}
+QScrollArea {{ background: transparent; border: none; }}
+QScrollArea > QWidget > QWidget {{ background: transparent; }}
 QPushButton:hover {{ border-color: {ACCENT}; }}
 QPushButton:disabled {{ color: #556070; }}
 QPushButton#primary {{ background: {ACCENT}; border: none; color: white; font-weight: 600; }}
 QPushButton#primary:hover {{ background: #ef7a4e; }}
-QComboBox {{ background: {CARD}; border: 1px solid {BORDER}; border-radius: 8px; padding: 6px 8px; }}
+QComboBox {{ background: {CARD}; border: 1px solid {BORDER}; border-radius: 8px; padding: 6px 8px; min-height: 22px; }}
 QComboBox QAbstractItemView {{ background: {CARD}; selection-background-color: {ACCENT}; }}
 QSlider::groove:horizontal {{ height: 6px; background: {BORDER}; border-radius: 3px; }}
 QSlider::sub-page:horizontal {{ background: {ACCENT}; border-radius: 3px; }}
@@ -271,8 +274,18 @@ class Studio(QMainWindow):
         self.setCentralWidget(root)
 
     def _left_panel(self):
+        """Controls panel inside a scroll area: on small or scaled screens (Windows 125-150 %)
+        it scrolls instead of squeezing the buttons until their text is clipped."""
         panel = QFrame(objectName="panel")
-        lay = QVBoxLayout(panel)
+        outer = QVBoxLayout(panel)
+        outer.setContentsMargins(0, 0, 0, 0)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        outer.addWidget(scroll)
+        inner = QWidget()
+        scroll.setWidget(inner)
+        lay = QVBoxLayout(inner)
         lay.setContentsMargins(16, 16, 16, 16)
         lay.setSpacing(10)
         lay.addWidget(section("Image"))
@@ -450,7 +463,8 @@ class Studio(QMainWindow):
         pre = result["pre"]
         self.stages = {
             "Original": cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB),
-            "Green channel": np.clip(pre["green"], 0, 255).astype(np.uint8),
+            # a single channel is intensity only -> shown in grey, as is standard in the literature
+            "Green channel (grey)": np.where(pre["fov"] > 0, np.clip(pre["green"], 0, 255), 0).astype(np.uint8),
             "Illumination corrected": np.clip(pre["corrected"], 0, 255).astype(np.uint8),
             "CLAHE": pre["clahe"],
             "Denoised (B+)": pre["smooth"],
