@@ -1,0 +1,11 @@
+# Core dependencies (pinned to the versions verified on this machine)
+opencv-python==5.1.0.95
+numpy==2.5.5
+matplotlib==3.11.2
+pandas==3.1.1
+scikit-image==0.26.0
+scikit-learn==1.9.1
+scipy==1.18.1
+pillow==13.0.0
+# Desktop application (gui.py)
+PySide6==6.12.0
