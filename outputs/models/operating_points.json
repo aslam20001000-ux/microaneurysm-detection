@@ -1,0 +1,32 @@
+{
+  "models": {
+    "A": {
+      "k": 1.5
+    },
+    "A+": {
+      "k": 2.5
+    },
+    "B": {
+      "k": 2.5
+    },
+    "B+": {
+      "k": 3.0
+    },
+    "C": {
+      "k": 5.0
+    },
+    "D0": {
+      "k": 8.0
+    },
+    "D": {
+      "k0": 3.0,
+      "classifier": "random_forest",
+      "threshold": 0.84
+    }
+  },
+  "blackhat_radii": [
+    16
+  ],
+  "line_length": 41,
+  "min_candidate_area": 5
+}
