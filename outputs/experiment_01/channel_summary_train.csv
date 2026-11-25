@@ -1,0 +1,6 @@
+,contrast,contrast,contrast,weber_contrast,weber_contrast,weber_contrast,cnr,cnr,cnr,fov_saturated_pct,fov_saturated_pct,fov_saturated_pct,fov_near_black_pct,fov_near_black_pct,fov_near_black_pct
+,25%,50%,75%,25%,50%,75%,25%,50%,75%,25%,50%,75%,25%,50%,75%
+channel,,,,,,,,,,,,,,,
+red,3.596,4.6689,6.3981,0.0216,0.0294,0.0405,0.1843,0.2811,0.3453,0.7549,1.0929,1.5249,0.0,0.0,0.0
+green,5.596,7.6206,8.9407,0.0848,0.0982,0.1162,0.4952,0.6715,0.7489,0.0,0.0,0.0,0.0582,0.0784,0.1126
+blue,0.3254,0.803,1.883,0.0323,0.0687,0.0913,0.0857,0.1685,0.2473,0.0,0.0,0.0,1.2567,22.3601,60.9687
